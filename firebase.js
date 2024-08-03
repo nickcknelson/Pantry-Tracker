@@ -1,13 +1,15 @@
+import dotenv from "dotenv";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
+dotenv.config();
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCvvMcgkaojplRkj72Z2qnz5Bby2eTZkcc",
+  apiKey: process.env.API_KEY,
   authDomain: "pantry-tracker-9ad2c.firebaseapp.com",
   projectId: "pantry-tracker-9ad2c",
   storageBucket: "pantry-tracker-9ad2c.appspot.com",

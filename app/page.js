@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { firestore } from "@/firebase";
 import {
@@ -21,6 +20,7 @@ import {
   setDoc,
   Query,
 } from "firebase/firestore";
+import { getRecipe } from "@/recipe-suggestion";
 
 export default function Home() {
   const [pantry, setPantry] = useState([]);
@@ -28,7 +28,7 @@ export default function Home() {
   const [itemName, setItemName] = useState("");
   const [queryName, setQuery] = useState("");
   const [queryText, setQueryText] = useState("Enter Pantry Item");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const updatePantry = async () => {
     const snapshot = query(collection(firestore, "pantry"));
@@ -77,6 +77,7 @@ export default function Home() {
   };
 
   const addItem = async (item) => {
+    setLoading(true);
     item = item.toLowerCase();
     const docRef = doc(collection(firestore, "pantry"), item);
     const docSnap = await getDoc(docRef);
@@ -89,6 +90,7 @@ export default function Home() {
     }
 
     await updatePantry();
+    setLoading(false);
   };
 
   const removeItem = async (item) => {
@@ -108,6 +110,13 @@ export default function Home() {
     await updatePantry();
   };
 
+  const [response, setResponse] = useState("");
+
+  const handleFetchRecipe = async () => {
+    const recipe = await getRecipe(pantry);
+    setResponse(recipe);
+  };
+
   useEffect(() => {
     updatePantryWithLoading();
   }, []);
@@ -124,6 +133,7 @@ export default function Home() {
       alignItems="center"
       gap={2}
       flexDirection="column"
+      margin={4}
     >
       <Modal open={open} onClose={handleClose}>
         <Box
@@ -168,7 +178,7 @@ export default function Home() {
       <Box>
         <Box
           border="1px solid #333"
-          bgcolor="#ebebeb"
+          bgcolor="#b6d7a8"
           width="80vw"
           display="flex"
           padding={1}
@@ -177,7 +187,7 @@ export default function Home() {
           alignItems="center"
           borderRadius="16px"
         >
-          <Typography variant="h1">Pantry Tracker</Typography>
+          <Typography variant="h2">Pantry Tracker</Typography>
         </Box>
         <Box
           display="flex"
@@ -186,124 +196,155 @@ export default function Home() {
           gap={2}
           flexDirection="column"
         >
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            border="1px solid #333"
-            gap={2}
-            padding={1}
-            margin={2}
-            flexDirection="row"
-          >
-            <TextField
-              fullWidth
-              placeholder="Search..."
-              value={queryName}
-              helperText={queryText}
-              onChange={(e) => {
-                setQuery(e.target.value);
-              }}
-            />
+          <Box display="flex" justifyContent="center" alignItems="center">
             <Button
               variant="contained"
               onClick={() => {
-                queryItem(queryName);
-                setQuery("");
+                handleOpen();
               }}
             >
-              Search
+              Add New Item
             </Button>
-          </Box>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleOpen();
-            }}
-          >
-            Add New Item
-          </Button>
-          <Box
-            border="1px solid #333"
-            sx={{
-              borderTopLeftRadius: "16px",
-              borderTopRightRadius: "16px",
-            }}
-          >
             <Box
-              width="100%"
-              minHeight="60px"
-              display="grid"
-              gridTemplateColumns="2fr 1fr 1fr"
+              display="flex"
+              justifyContent="center"
               alignItems="center"
-              bgcolor="#b6d7a8"
-              padding={2}
-              fontWeight="bold"
+              border="1px solid #333"
+              gap={2}
+              padding={1}
+              margin={2}
+              flexDirection="row"
+            >
+              <TextField
+                fullWidth
+                placeholder="Search..."
+                value={queryName}
+                helperText={queryText}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                }}
+              />
+              <Button
+                variant="contained"
+                onClick={() => {
+                  queryItem(queryName);
+                  setQuery("");
+                }}
+              >
+                Search
+              </Button>
+            </Box>
+          </Box>
+          <Box display="flex" flexDirection="row">
+            <Box
+              border="1px solid #333"
               sx={{
                 borderTopLeftRadius: "16px",
                 borderTopRightRadius: "16px",
               }}
             >
-              <Typography variant="h5" color="#333" textAlign="center">
-                Name
-              </Typography>
-              <Typography variant="h5" color="#333" textAlign="center">
-                Quantity
-              </Typography>
-            </Box>
-            <Stack
-              paddingTop="80px"
-              width="800px"
-              height="300px"
-              spacing={2}
-              overflow="auto"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              {loading ? (
-                <CircularProgress />
-              ) : (
-                pantry.map(({ name, quantity }) => (
-                  <Box
-                    key={name}
-                    width="100%"
-                    minHeight="60px"
-                    display="grid"
-                    alignItems="center"
-                    gridTemplateColumns="2fr 1fr 1fr"
-                    bgcolor="#f0f0f0"
-                    borderRadius="16px"
-                    padding={2}
-                  >
-                    <Typography variant="h5" color="#333" textAlign="center">
-                      {name.charAt(0).toUpperCase() + name.slice(1)}
-                    </Typography>
-                    <Typography variant="h5" color="#333" textAlign="center">
-                      {quantity}
-                    </Typography>
-                    <Stack direction="row" spacing={2}>
-                      <Button
-                        variant="contained"
-                        onClick={() => {
-                          addItem(name);
-                        }}
-                      >
-                        Add
-                      </Button>
-                      <Button
-                        variant="contained"
-                        onClick={() => {
-                          removeItem(name);
-                        }}
-                      >
-                        Remove
-                      </Button>
-                    </Stack>
+              <Box
+                width="100%"
+                minHeight="60px"
+                display="grid"
+                gridTemplateColumns="2fr 1fr 1fr"
+                alignItems="center"
+                bgcolor="#b6d7a8"
+                padding={2}
+                fontWeight="bold"
+                sx={{
+                  borderTopLeftRadius: "16px",
+                  borderTopRightRadius: "16px",
+                }}
+              >
+                <Typography variant="h5" color="#333" textAlign="center">
+                  Name
+                </Typography>
+                <Typography variant="h5" color="#333" textAlign="center">
+                  Quantity
+                </Typography>
+              </Box>
+              <Stack
+                width="600px"
+                height="400px"
+                spacing={2}
+                overflow="auto"
+                display="flex"
+                alignItems="center"
+              >
+                {loading ? (
+                  <Box paddingTop={10}>
+                    <CircularProgress />
                   </Box>
-                ))
-              )}
-            </Stack>
+                ) : (
+                  pantry.map(({ name, quantity }) => (
+                    <Box
+                      key={name}
+                      width="100%"
+                      minHeight="60px"
+                      display="grid"
+                      alignItems="center"
+                      gridTemplateColumns="2fr 1fr 1fr"
+                      bgcolor="#f0f0f0"
+                      borderRadius="16px"
+                      padding={2}
+                    >
+                      <Typography variant="h5" color="#333" textAlign="center">
+                        {name.charAt(0).toUpperCase() + name.slice(1)}
+                      </Typography>
+                      <Typography variant="h5" color="#333" textAlign="center">
+                        {quantity}
+                      </Typography>
+                      <Stack direction="row" spacing={2}>
+                        <Button
+                          variant="contained"
+                          onClick={() => {
+                            addItem(name);
+                          }}
+                        >
+                          Add
+                        </Button>
+                        <Button
+                          variant="contained"
+                          onClick={() => {
+                            removeItem(name);
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </Stack>
+                    </Box>
+                  ))
+                )}
+              </Stack>
+            </Box>
+            <Box>
+              <Box marginLeft={2}>
+                <Typography variant="h4">AI Personal Chef</Typography>
+                <TextField
+                  value={response}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  fullWidth
+                  width="200px"
+                  variant="outlined"
+                  multiline
+                  style={{
+                    maxHeight: "300px",
+                    overflowY: "auto",
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    handleFetchRecipe(response);
+                  }}
+                >
+                  Get Recipe Suggestions!
+                </Button>
+              </Box>
+            </Box>
           </Box>
         </Box>
       </Box>
