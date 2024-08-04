@@ -27,7 +27,7 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState("");
   const [queryName, setQuery] = useState("");
-  const [queryText, setQueryText] = useState("Enter Pantry Item");
+  const [placeholderText, setPlaceholder] = useState("Enter Pantry Item");
   const [loading, setLoading] = useState(true);
   const [apiLoading, setApiLoading] = useState(false);
 
@@ -54,10 +54,10 @@ export default function Home() {
   const queryItem = async (item) => {
     if (item === "") {
       updatePantry();
-      setQueryText("Please Enter A Pantry Item");
+      setPlaceholder("Please Enter A Pantry Item");
       return;
     } else {
-      setQueryText("Enter Pantry Item");
+      setPlaceholder("Enter Pantry Item");
     }
     item = item.toLowerCase();
     const docRef = doc(collection(firestore, "pantry"), item);
@@ -72,7 +72,7 @@ export default function Home() {
       setPantry(pantryList);
       console.log(pantryList);
     } else {
-      setQueryText("Item Not Found");
+      setPlaceholder("Item Not Found");
       updatePantry();
     }
   };
@@ -132,7 +132,7 @@ export default function Home() {
       alignItems="center"
       gap={2}
       flexDirection="column"
-      margin={4}
+      bgcolor="#F9F9F9"
     >
       <Modal open={open} onClose={handleClose}>
         <Box
@@ -192,17 +192,30 @@ export default function Home() {
         >
           <Box
             border="1px solid #333"
-            bgcolor="#b6d7a8"
-            width="60vw"
+            bgcolor="#e0e0e0"
+            width="100vw"
             display="flex"
-            padding={1}
-            justifyContent="center"
-            alignItems="center"
-            borderRadius="16px"
+            padding={2}
           >
-            <Typography variant="h2">Pantry Tracker</Typography>
+            <Typography variant="h4">Pantry Tracker</Typography>
           </Box>
           <Box display="flex" justifyContent="center" alignItems="center">
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "aliceblue",
+                "&:hover": {
+                  backgroundColor: "navy",
+                  color: "white",
+                },
+                color: "black",
+              }}
+              onClick={() => {
+                handleOpen();
+              }}
+            >
+              Add New Item
+            </Button>
             <Box
               display="flex"
               justifyContent="center"
@@ -215,9 +228,8 @@ export default function Home() {
             >
               <TextField
                 fullWidth
-                placeholder="Search..."
+                placeholder={placeholderText}
                 value={queryName}
-                helperText={queryText}
                 onChange={(e) => {
                   setQuery(e.target.value);
                 }}
@@ -247,20 +259,43 @@ export default function Home() {
             justifyContent="space-between"
           >
             <Box
-              border="1px solid #333"
-              sx={{
-                borderTopLeftRadius: "16px",
-                borderTopRightRadius: "16px",
-              }}
+              bgcolor="#e9e9e9"
+              paddingLeft="50px"
+              paddingRight="50px"
+              paddingBottom="50px"
+              borderRadius="10px"
             >
+              <Box
+                paddingBottom="20px"
+                paddingTop="30px"
+                alignItems="center"
+                display="flex"
+                justifyContent="center"
+              >
+                <Box
+                  bgcolor="#e0e0e0"
+                  padding="15px"
+                  borderRadius="10px"
+                  border="1px solid #333"
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  sx={{
+                    width: "fit-content",
+                  }}
+                >
+                  <Typography variant="h5">Pantry</Typography>
+                </Box>
+              </Box>
               <Box
                 minHeight="60px"
                 display="grid"
                 gridTemplateColumns="2fr 1fr 1fr"
                 alignItems="center"
-                bgcolor="#b6d7a8"
+                bgcolor="#e0e0e0"
                 padding={2}
                 fontWeight="bold"
+                border="1px solid #333"
                 sx={{
                   borderTopLeftRadius: "16px",
                   borderTopRightRadius: "16px",
@@ -283,10 +318,10 @@ export default function Home() {
                     color: "black",
                   }}
                   onClick={() => {
-                    handleOpen();
+                    updatePantryWithLoading();
                   }}
                 >
-                  Add New Item
+                  Refresh
                 </Button>
               </Box>
               <Stack
@@ -296,6 +331,8 @@ export default function Home() {
                 overflow="auto"
                 display="flex"
                 alignItems="center"
+                bgcolor="white"
+                border="1px solid #333"
               >
                 {loading ? (
                   <Box paddingTop={10}>
@@ -360,8 +397,28 @@ export default function Home() {
               </Stack>
             </Box>
             <Box>
-              <Box gap={2} display="flex" flexDirection="column" margin={5}>
-                <Typography variant="h4">AI Personal Chef</Typography>
+              <Box
+                gap={2}
+                display="flex"
+                flexDirection="column"
+                margin={5}
+                bgcolor="#e9e9e9"
+                padding={4}
+                borderRadius="10px"
+                alignItems="center"
+              >
+                <Box
+                  bgcolor="#e0e0e0"
+                  padding="10px"
+                  borderRadius="10px"
+                  border="1px solid #333"
+                  justifyContent="center"
+                  sx={{
+                    width: "fit-content",
+                  }}
+                >
+                  <Typography variant="h5">AI Personal Chef</Typography>
+                </Box>
                 {apiLoading ? (
                   <Box
                     display="flex"
@@ -380,8 +437,11 @@ export default function Home() {
                     variant="outlined"
                     multiline
                     style={{
+                      backgroundColor: "white",
                       maxHeight: "300px",
                       overflowY: "auto",
+                      borderRadius: "5px",
+                      border: "1px solid gray",
                     }}
                   />
                 )}
