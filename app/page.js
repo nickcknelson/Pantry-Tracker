@@ -29,6 +29,7 @@ export default function Home() {
   const [queryName, setQuery] = useState("");
   const [queryText, setQueryText] = useState("Enter Pantry Item");
   const [loading, setLoading] = useState(true);
+  const [apiLoading, setApiLoading] = useState(false);
 
   const updatePantry = async () => {
     const snapshot = query(collection(firestore, "pantry"));
@@ -77,7 +78,6 @@ export default function Home() {
   };
 
   const addItem = async (item) => {
-    setLoading(true);
     item = item.toLowerCase();
     const docRef = doc(collection(firestore, "pantry"), item);
     const docSnap = await getDoc(docRef);
@@ -90,7 +90,6 @@ export default function Home() {
     }
 
     await updatePantry();
-    setLoading(false);
   };
 
   const removeItem = async (item) => {
@@ -113,8 +112,10 @@ export default function Home() {
   const [response, setResponse] = useState("");
 
   const handleFetchRecipe = async () => {
+    setApiLoading(true);
     const recipe = await getRecipe(pantry);
     setResponse(recipe);
+    setApiLoading(false);
   };
 
   useEffect(() => {
@@ -126,8 +127,6 @@ export default function Home() {
 
   return (
     <Box
-      width="100vw"
-      height="100vh"
       display="flex"
       justifyContent="center"
       alignItems="center"
@@ -164,6 +163,14 @@ export default function Home() {
             />
             <Button
               variant="outlined"
+              sx={{
+                backgroundColor: "aliceblue",
+                "&:hover": {
+                  backgroundColor: "navy",
+                  color: "white",
+                },
+                color: "black",
+              }}
               onClick={() => {
                 addItem(itemName);
                 setItemName("");
@@ -177,34 +184,25 @@ export default function Home() {
       </Modal>
       <Box>
         <Box
-          border="1px solid #333"
-          bgcolor="#b6d7a8"
-          width="80vw"
-          display="flex"
-          padding={1}
-          marginTop={4}
-          justifyContent="center"
-          alignItems="center"
-          borderRadius="16px"
-        >
-          <Typography variant="h2">Pantry Tracker</Typography>
-        </Box>
-        <Box
           display="flex"
           justifyContent="center"
           alignItems="center"
           gap={2}
           flexDirection="column"
         >
+          <Box
+            border="1px solid #333"
+            bgcolor="#b6d7a8"
+            width="60vw"
+            display="flex"
+            padding={1}
+            justifyContent="center"
+            alignItems="center"
+            borderRadius="16px"
+          >
+            <Typography variant="h2">Pantry Tracker</Typography>
+          </Box>
           <Box display="flex" justifyContent="center" alignItems="center">
-            <Button
-              variant="contained"
-              onClick={() => {
-                handleOpen();
-              }}
-            >
-              Add New Item
-            </Button>
             <Box
               display="flex"
               justifyContent="center"
@@ -226,6 +224,14 @@ export default function Home() {
               />
               <Button
                 variant="contained"
+                sx={{
+                  backgroundColor: "aliceblue",
+                  "&:hover": {
+                    backgroundColor: "navy",
+                    color: "white",
+                  },
+                  color: "black",
+                }}
                 onClick={() => {
                   queryItem(queryName);
                   setQuery("");
@@ -235,7 +241,11 @@ export default function Home() {
               </Button>
             </Box>
           </Box>
-          <Box display="flex" flexDirection="row">
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="space-between"
+          >
             <Box
               border="1px solid #333"
               sx={{
@@ -244,7 +254,6 @@ export default function Home() {
               }}
             >
               <Box
-                width="100%"
                 minHeight="60px"
                 display="grid"
                 gridTemplateColumns="2fr 1fr 1fr"
@@ -263,9 +272,25 @@ export default function Home() {
                 <Typography variant="h5" color="#333" textAlign="center">
                   Quantity
                 </Typography>
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "aliceblue",
+                    "&:hover": {
+                      backgroundColor: "navy",
+                      color: "white",
+                    },
+                    color: "black",
+                  }}
+                  onClick={() => {
+                    handleOpen();
+                  }}
+                >
+                  Add New Item
+                </Button>
               </Box>
               <Stack
-                width="600px"
+                width="60vw"
                 height="400px"
                 spacing={2}
                 overflow="auto"
@@ -298,19 +323,35 @@ export default function Home() {
                       <Stack direction="row" spacing={2}>
                         <Button
                           variant="contained"
+                          sx={{
+                            backgroundColor: "aliceblue",
+                            "&:hover": {
+                              backgroundColor: "navy",
+                              color: "white",
+                            },
+                            color: "black",
+                          }}
                           onClick={() => {
                             addItem(name);
                           }}
                         >
-                          Add
+                          +
                         </Button>
                         <Button
                           variant="contained"
+                          sx={{
+                            backgroundColor: "aliceblue",
+                            "&:hover": {
+                              backgroundColor: "navy",
+                              color: "white",
+                            },
+                            color: "black",
+                          }}
                           onClick={() => {
                             removeItem(name);
                           }}
                         >
-                          Remove
+                          -
                         </Button>
                       </Stack>
                     </Box>
@@ -319,24 +360,41 @@ export default function Home() {
               </Stack>
             </Box>
             <Box>
-              <Box marginLeft={2}>
+              <Box gap={2} display="flex" flexDirection="column" margin={5}>
                 <Typography variant="h4">AI Personal Chef</Typography>
-                <TextField
-                  value={response}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  fullWidth
-                  width="200px"
-                  variant="outlined"
-                  multiline
-                  style={{
-                    maxHeight: "300px",
-                    overflowY: "auto",
-                  }}
-                />
+                {apiLoading ? (
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <CircularProgress />
+                  </Box>
+                ) : (
+                  <TextField
+                    value={response}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    fullWidth
+                    variant="outlined"
+                    multiline
+                    style={{
+                      maxHeight: "300px",
+                      overflowY: "auto",
+                    }}
+                  />
+                )}
                 <Button
                   variant="contained"
+                  sx={{
+                    backgroundColor: "aliceblue",
+                    "&:hover": {
+                      backgroundColor: "navy",
+                      color: "white",
+                    },
+                    color: "black",
+                  }}
                   onClick={() => {
                     handleFetchRecipe(response);
                   }}

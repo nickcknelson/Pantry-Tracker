@@ -14,7 +14,7 @@ export const getRecipe = async (items) => {
     messages: [
       {
         role: "user",
-        content: `Give me some recipes from the following items that i have in my pantry: ${itemNames}. Do not use any markdown formatting, code blocks, or special characters. Provide a plain text response only.`,
+        content: `Act like you are the best personal chef in the world! Give me some recipes from the following items that i have in my pantry: ${itemNames}. Do not use any markdown formatting, code blocks, or special characters. Provide a plain text response only.`,
       },
     ],
     model: "gpt-4o-mini",
